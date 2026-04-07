@@ -1,0 +1,34 @@
+{% extends 'blog/base.html' %}
+
+{% block title %}{{ user_prof.username }}'s Profile - Blog{% endblock %}
+
+{% block content %}
+<div class="card" style="text-align: center;">
+    <h2>{{ user_prof.username }}'s Profile</h2>
+    <div style="display: flex; justify-content: center; gap: 2rem; margin: 1rem 0;">
+        <div><strong>{{ user_prof.posts.count }}</strong> Posts</div>
+        <div><strong>{{ user_prof.followers.count }}</strong> Followers</div>
+        <div><strong>{{ user_prof.following.count }}</strong> Following</div>
+    </div>
+    
+    {% if user.is_authenticated and user != user_prof %}
+        <form action="{% url 'toggle_follow' user_prof.username %}" method="post" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit" class="btn {% if is_following %}btn-danger{% endif %}">
+                {% if is_following %}Unfollow{% else %}Follow{% endif %}
+            </button>
+        </form>
+    {% endif %}
+</div>
+
+<h3 style="margin-top: 2rem;">Recent Posts by {{ user_prof.username }}</h3>
+{% for post in user_prof.posts.all %}
+    <div class="card">
+        <h4 class="card-title"><a href="{{ post.get_absolute_url }}">{{ post.title }}</a></h4>
+        <div class="meta">{{ post.timestamp|date:"F d, Y" }} &bull; {{ post.total_likes }} likes</div>
+        <p>{{ post.content|truncatewords:15 }}</p>
+    </div>
+{% empty %}
+    <p>No posts yet.</p>
+{% endfor %}
+{% endblock %}

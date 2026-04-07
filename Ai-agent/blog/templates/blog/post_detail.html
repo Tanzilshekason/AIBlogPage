@@ -1,0 +1,60 @@
+{% extends 'blog/base.html' %}
+
+{% block title %}{{ post.title }} - Blog{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2 class="card-title">{{ post.title }}</h2>
+    <div class="meta">
+        By <a href="{% url 'profile' post.author.username %}">{{ post.author.username }}</a> 
+        on {{ post.timestamp|date:"F d, Y" }}
+        &bull; <span class="likes-count">&hearts; {{ post.total_likes }}</span>
+    </div>
+    
+    <div style="margin: 2rem 0; white-space: pre-line;">
+        {{ post.content }}
+    </div>
+    
+    <div style="display: flex; gap: 1rem; border-top: 1px solid var(--border); padding-top: 1rem;">
+        {% if user.is_authenticated %}
+            <form action="{% url 'like_post' post.pk %}" method="post" style="display:inline; flex-direction: row; align-items:center;">
+                {% csrf_token %}
+                <button type="submit" class="btn" style="background:var(--danger);">&hearts; Like</button>
+            </form>
+        {% endif %}
+
+        {% if user == post.author %}
+            <a href="{% url 'post_update' post.pk %}" class="btn">Edit</a>
+            <a href="{% url 'post_delete' post.pk %}" class="btn btn-danger">Delete</a>
+        {% endif %}
+        <a href="{% url 'post_list' %}" style="margin-left: auto; color: var(--text-muted); text-decoration: none; align-self: center;">&larr; Back to posts</a>
+    </div>
+</div>
+
+<div class="card">
+    <h3>Comments ({{ post.comments.count }})</h3>
+    {% if user.is_authenticated %}
+        <form action="{% url 'add_comment' post.pk %}" method="post" style="margin-bottom: 2rem;">
+            {% csrf_token %}
+            <textarea name="content" rows="3" placeholder="Add a comment..." required></textarea>
+            <button type="submit" class="btn">Post Comment</button>
+        </form>
+    {% else %}
+        <p><a href="{% url 'login' %}">Login</a> to add a comment.</p>
+    {% endif %}
+
+    <div>
+        {% for comment in post.comments.all %}
+            <div style="border-bottom: 1px solid var(--border); padding-bottom: 1rem; margin-bottom: 1rem;">
+                <div class="meta">
+                    <strong><a href="{% url 'profile' comment.author.username %}">{{ comment.author.username }}</a></strong>
+                    on {{ comment.timestamp|date:"F d, Y, h:i a" }}
+                </div>
+                <div>{{ comment.content }}</div>
+            </div>
+        {% empty %}
+            <p>No comments yet.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

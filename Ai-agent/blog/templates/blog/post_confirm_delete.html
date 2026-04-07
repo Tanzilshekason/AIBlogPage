@@ -1,0 +1,18 @@
+{% extends 'blog/base.html' %}
+
+{% block title %}Delete Post - Blog{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2 style="color: var(--danger);">Confirm Deletion</h2>
+    <p>Are you sure you want to delete the post "<strong>{{ object.title }}</strong>"?</p>
+    
+    <form method="post">
+        {% csrf_token %}
+        <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+            <button type="submit" class="btn btn-danger">Yes, Delete</button>
+            <a href="{{ object.get_absolute_url }}" class="btn" style="background: var(--border);">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
